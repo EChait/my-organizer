@@ -1,0 +1,7 @@
+@font-face {
+  font-family: "Pacifico";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Pacifico Regular"), local("Pacifico-Regular"),
+    url("Pacifico-Regular.ttf") format("truetype");
+}
