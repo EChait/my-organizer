@@ -2,7 +2,7 @@
   "name": "my-organizer",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://echait.github.io/Final-Project",
+  "homepage": "https://echait.github.io/my-organizer",
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
