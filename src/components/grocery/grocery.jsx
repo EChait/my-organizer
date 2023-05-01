@@ -78,6 +78,7 @@ export const Grocery = () => {
             fullWidth
             InputLabelProps={{ style: { color: "#2c3e50" } }}
             sx={{
+              marginBottom: "10px",
               bgcolor: "#fff",
               backgroundColor: "#fff",
               "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
@@ -95,7 +96,7 @@ export const Grocery = () => {
               "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
             }}
           />
-          <IconButton onClick={() => setIsClicked(true)}>
+          <IconButton>
             <Search style={{ color: "#2c3e50" }} />
           </IconButton>
         </Box>
@@ -151,6 +152,21 @@ export const Grocery = () => {
       <Grid item xs={12}></Grid>
       {
         <Grid item xs={12}>
+          <Typography
+            variant="h4"
+            style={{
+              fontWeight: "bold",
+              color: "#2c3e50",
+              backgroundColor: "#ffb997",
+              textAlign: "center",
+              marginBottom: "10px",
+              textShadow:
+                "1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff",
+            }}
+          >
+            Our Top Picks For You!
+          </Typography>
+
           <Box sx={{ display: "flex", flexWrap: "wrap" }}>
             {filteredItems.map((item) => (
               <Box
