@@ -1,81 +1,164 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   Grid,
   Paper,
   Typography,
   TextField,
-  Checkbox,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Box,
 } from "@mui/material";
-//import { font } from "./font/Pacifico-Regular.ttf"; // import the font file
+import AddIcon from "@mui/icons-material/Add";
+import Carousel from "react-material-ui-carousel";
+import { GlobalStateContext } from "../../globalState/globalStateContext";
+import WebFont from "webfontloader";
+import axios from "axios";
 
 export const DailyPlanner = () => {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState("");
-  const [appointments, setAppointments] = useState([]);
-  const [newAppointment, setNewAppointment] = useState({
-    time: "",
-    description: "",
-  });
-  const [goals, setGoals] = useState("");
-  const [meals, setMeals] = useState([]);
-  const [newMeal, setNewMeal] = useState("");
-  const [gratefulThings, setGratefulThings] = useState("");
-  const [newNote, setNewNote] = useState("");
-  const [notes, setNotes] = useState([]);
-  const [waterLogs, setWaterLogs] = useState([]);
-  const [waterGoal, setWaterGoal] = useState(8);
+  const {
+    meals,
+    newMeal,
+    gratefulThings,
+    gratefulList,
+    quote,
+    author,
+    mealType,
+    calories,
+    open,
+    newAppointments,
+    currentCell,
+    openEvent,
+    description,
+    details,
+    setMeals,
+    setNewMeal,
+    setGratefulThings,
+    setGratefulList,
+    setQuote,
+    setAuthor,
+    setMealType,
+    setCalories,
+    setOpen,
+    setNewAppointments,
+    setCurrentCell,
+    setOpenEvent,
+    setDescription,
+    setDetails,
+    myEvents,
+  } = useContext(GlobalStateContext);
 
-  const handleAppointmentStatusChange = (index) => {
-    const newAppointments = [...appointments];
-    newAppointments[index].isDone = !newAppointments[index].isDone;
-    setAppointments(newAppointments);
-  };
-
-  const handleAddNote = () => {
-    if (newNote.trim() !== "") {
-      setNotes([...notes, newNote]);
-      setNewNote("");
+  const handleAddGrateful = () => {
+    if (gratefulThings.trim() !== "") {
+      setGratefulList((prevList) => [...prevList, gratefulThings]);
+      setGratefulThings("");
     }
   };
 
-  const [waterTracker, setWaterTracker] = useState([]);
-  const handleAddWater = () => {
-    const newWaterLogs = [...waterLogs, new Date().toLocaleString()];
-    setWaterLogs(newWaterLogs);
-    const newWaterTracker = [...waterTracker, newWaterLogs.length];
-    setWaterTracker(newWaterTracker);
-  };
+  useEffect(() => {
+    const filterAppointments = () => {
+      const today = new Date().toLocaleDateString();
+      const filteredAppointments = myEvents.filter(
+        (event) => event.date === today
+      );
+      setNewAppointments(filteredAppointments);
+    };
 
-  const handleAddTask = () => {
-    if (newTask.trim() !== "") {
-      setTasks([...tasks, { taskName: newTask, isDone: false }]);
-      setNewTask("");
-    }
-  };
+    filterAppointments();
+    console.log(filterAppointments);
+  }, []);
 
-  const handleTaskStatusChange = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].isDone = !updatedTasks[index].isDone;
-    setTasks(updatedTasks);
-  };
+  useEffect(() => {
+    WebFont.load({
+      google: {
+        families: ["Pacifico", "Chilanka", "Droid Sans"],
+      },
+    });
+  }, []);
 
-  const handleAddAppointment = () => {
-    if (
-      newAppointment.time.trim() !== "" &&
-      newAppointment.description.trim() !== ""
-    ) {
-      setAppointments([...appointments, newAppointment]);
-      setNewAppointment({ time: "", description: "" });
-    }
-  };
+  useEffect(() => {
+    axios
+      .get("https://api.api-ninjas.com/v1/quotes", {
+        params: {
+          category: "happiness",
+        },
+        headers: {
+          "X-Api-Key": "eLGHXoNIpoTjuitk9hnu1w==FdcBRtk43owPED1q",
+        },
+      })
+      .then((response) => {
+        setQuote(response.data[0].quote);
+        setAuthor(response.data[0].author);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
   const handleAddMeal = () => {
-    if (newMeal.trim() !== "") {
-      setMeals([...meals, newMeal]);
-      setNewMeal("");
-    }
+    const meal = {
+      name: newMeal,
+      type: mealType,
+      calories: calories,
+    };
+    setMeals([...meals, meal]);
+    setOpen(false);
+    setNewMeal("");
+    setMealType("");
+    setCalories("");
   };
+
+  const handlePlannerDialogClose = () => {
+    setOpen(false);
+  };
+
+  const handleClickCell = (timeSlot) => {
+    setCurrentCell(timeSlot);
+    setOpenEvent(true);
+  };
+
+  const handlePlannerClose = () => {
+    setOpenEvent(false);
+  };
+
+  const handleSave = () => {
+    setNewAppointments([
+      ...newAppointments,
+      {
+        time: currentCell,
+        title: description,
+        details: details,
+      },
+    ]);
+    setDescription("");
+    setDetails("");
+    setOpenEvent(false);
+  };
+
+  const timeSlots = [
+    "09:00 AM",
+    "10:00 AM",
+    "11:00 AM",
+    "12:00 PM",
+    "01:00 PM",
+    "02:00 PM",
+    "03:00 PM",
+    "04:00 PM",
+    "05:00 PM",
+    "06:00 PM",
+    "07:00 PM",
+    "08:00 PM",
+    "09:00 PM",
+  ];
 
   return (
     <Grid
@@ -85,29 +168,29 @@ export const DailyPlanner = () => {
     >
       <Grid item xs={12}>
         <Typography
-          variant="h4"
+          variant="h2"
           component="h1"
           align="center"
           style={{
-            fontFamily: "Arial",
-            textAlign: "center",
-            textDecoration: "underline",
+            fontFamily: "Chilanka",
+            fontWeight: "bold",
             color: "#2c3e50",
+            textAlign: "center",
           }}
         >
-          Daily Planner
+          My Daily Planner
         </Typography>
         <Typography
           variant="h5"
           component="h1"
           align="center"
           style={{
-            fontFamily: "Pacifico-Regular",
-            textAlign: "center",
-            backgroundColor: "#ffb997",
+            fontWeight: "bold",
             color: "#2c3e50",
-            padding: "10px",
-            borderRadius: "5px",
+            backgroundColor: "#ffb997",
+            textAlign: "center",
+            marginBottom: "10px",
+            fontFamily: "Droid Sans",
           }}
         >
           Today: {new Date().toLocaleDateString()}
@@ -118,15 +201,20 @@ export const DailyPlanner = () => {
         spacing={3}
         sx={{
           backgroundColor: "#fff",
-          marginTop: "10px",
+          marginTop: "5px",
           backgroundColor: "#2c3e50",
           border: "3px solid #ffb997",
           padding: "10px",
           margin: "20px",
           marginLeft: "50px",
+          borderRadius: "20px",
+          backgroundImage: "linear-gradient(to bottom, #2c3e50, #ffb997, #fff)", // add a background gradient
         }}
       >
         <Grid item xs={12} md={6}>
+          <br></br>
+          <br></br>
+          <br></br>
           <Paper
             elevation={3}
             style={{
@@ -139,118 +227,38 @@ export const DailyPlanner = () => {
             <Typography
               variant="h5"
               component="h2"
-              style={{ color: "#2c3e50", textAlign: "center" }}
-            >
-              Today's Goals
-            </Typography>
-            <TextField
-              InputLabelProps={{ style: { color: "#2c3e50" } }}
-              sx={{
-                bgcolor: "#fff",
-                backgroundColor: "#fff",
-                "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#2c3e50",
-                },
-                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
-                  {
-                    borderColor: "#2c3e50",
-                  },
-                "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-                  {
-                    borderColor: "#2c3e50",
-                  },
-                "& .MuiOutlinedInput-input": { color: "#2c3e50" },
-                "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
+              style={{
+                fontWeight: "bold",
+                color: "#2c3e50",
+                backgroundColor: "#ffb997",
+                textAlign: "center",
+                marginBottom: "10px",
+                textShadow:
+                  "1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff",
               }}
-              label="Add Goal"
-              value={goals}
-              onChange={(e) => setGoals(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={(e) => setGoals(e.target.value)}
-                sx={{
-                  mt: "auto",
-                  mb: 1,
-                  backgroundColor: "#2c3e50",
-                  color: "#fff",
-                  "&:hover": {
-                    backgroundColor: "#fff",
-                    color: "#2c3e50",
-                    border: "3px solid #2c3e50",
-                  },
-                  border: "3px solid #ffb997",
-                }}
-              >
-                Add Goal
-              </Button>
-            </div>
-            <Typography variant="body1" component="ul">
-              {goals &&
-                goals
-                  .split("\n")
-                  .map((goal, index) => <li key={index}>{goal}</li>)}
+            >
+              Inspirational Quote
             </Typography>
-          </Paper>
 
-          <Paper
-            elevation={3}
-            sx={{ marginTop: "10px" }}
-            style={{
-              width: "80%",
-              margin: "0 auto",
-              border: "3px solid #ffb997",
-              padding: "1rem",
-              marginTop: "10px",
-            }}
-          >
-            <Typography variant="h5" component="h2">
-              Priorities
-            </Typography>
-            <TextField
-              label="Add Task"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleAddTask}
-                sx={{
-                  mt: "auto",
-                  mb: 1,
-                  backgroundColor: "#2c3e50",
-                  color: "#fff",
-                  "&:hover": {
-                    backgroundColor: "#fff",
-                    color: "#2c3e50",
-                    border: "3px solid #2c3e50",
-                  },
-                  border: "3px solid #ffb997",
-                }}
+            <div style={{ textAlign: "center" }}>
+              <Typography
+                variant="body1"
+                component="p"
+                style={{ fontFamily: "Droid Sans" }}
               >
-                Add Task
-              </Button>
+                {quote}
+              </Typography>
+              <Typography
+                variant="body2"
+                component="p"
+                style={{ fontFamily: "Droid Sans" }}
+              >
+                {"- " + author}
+              </Typography>
             </div>
-            <Typography variant="body1" component="ul">
-              {tasks.map((task, index) => (
-                <li key={index}>
-                  <Checkbox
-                    checked={task.isDone}
-                    onChange={() => handleTaskStatusChange(index)}
-                  />
-                  {task.taskName}
-                </li>
-              ))}
-            </Typography>
           </Paper>
+          <br></br>
+          <br></br>
           <Paper
             elevation={3}
             sx={{ marginTop: "10px" }}
@@ -262,42 +270,188 @@ export const DailyPlanner = () => {
               marginTop: "10px",
             }}
           >
-            <Typography variant="h5" component="h2">
+            <Typography
+              variant="h5"
+              component="h2"
+              style={{
+                fontWeight: "bold",
+                color: "#2c3e50",
+                backgroundColor: "#ffb997",
+                textAlign: "center",
+                marginBottom: "10px",
+                textShadow:
+                  "1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff",
+              }}
+            >
               Meal Tracker
             </Typography>
-            <TextField
-              label="New Meal"
-              value={newMeal}
-              onChange={(e) => setNewMeal(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
+            <Button
+              aria-label="add meal"
+              color="primary"
+              onClick={() => setOpen(true)}
+              style={{
+                display: "block",
+                margin: "0 auto",
+                color: "#2c3e50",
+                textDecoration: "underline",
+              }}
+            >
+              Click HERE to add a Meal
+            </Button>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddMeal}
-              sx={{
-                mt: "auto",
-                mb: 1,
-                backgroundColor: "#2c3e50",
-                color: "#fff",
-                "&:hover": {
-                  backgroundColor: "#fff",
-                  color: "#2c3e50",
-                  border: "3px solid #2c3e50",
-                },
-                border: "3px solid #ffb997",
-              }}
+            <Dialog open={open} onClose={handlePlannerDialogClose}>
+              <DialogTitle>Add Meal</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Enter the details for your new meal below.
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  label="New Meal"
+                  fullWidth
+                  value={newMeal}
+                  onChange={(e) => setNewMeal(e.target.value)}
+                  InputLabelProps={{ style: { color: "#2c3e50" } }}
+                  sx={{
+                    marginBottom: "10px",
+                    bgcolor: "#fff",
+                    backgroundColor: "#fff",
+                    "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-input": { color: "#2c3e50" },
+                    "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Meal Type"
+                  fullWidth
+                  value={mealType}
+                  onChange={(e) => setMealType(e.target.value)}
+                  InputLabelProps={{ style: { color: "#2c3e50" } }}
+                  sx={{
+                    marginBottom: "10px",
+                    bgcolor: "#fff",
+                    backgroundColor: "#fff",
+                    "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-input": { color: "#2c3e50" },
+                    "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Calories"
+                  fullWidth
+                  value={calories}
+                  onChange={(e) => setCalories(e.target.value)}
+                  InputLabelProps={{ style: { color: "#2c3e50" } }}
+                  sx={{
+                    marginBottom: "10px",
+                    bgcolor: "#fff",
+                    backgroundColor: "#fff",
+                    "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-input": { color: "#2c3e50" },
+                    "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={handlePlannerDialogClose}
+                  sx={{
+                    backgroundColor: "#2c3e50",
+                    color: "#fff",
+                    "&:hover": {
+                      backgroundColor: "#fff",
+                      color: "#2c3e50",
+                      border: "3px solid #2c3e50",
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddMeal}
+                  sx={{
+                    backgroundColor: "#2c3e50",
+                    color: "#fff",
+                    "&:hover": {
+                      backgroundColor: "#fff",
+                      color: "#2c3e50",
+                      border: "3px solid #2c3e50",
+                    },
+                  }}
+                >
+                  Add Meal
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <Box
+              sx={{ marginTop: "10px", maxHeight: "200px", overflowY: "auto" }}
             >
-              Add Meal
-            </Button>
-            <Typography variant="body1" component="ul">
-              {meals.map((meal, index) => (
-                <li key={index}>{meal}</li>
-              ))}
-            </Typography>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Food Item</TableCell>
+                      <TableCell>Category</TableCell>
+                      <TableCell>Calories</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {meals
+                      .filter((meal) => meal.name && meal.type && meal.calories)
+                      .map((meal, index) => (
+                        <TableRow key={index}>
+                          <TableCell component="th" scope="row">
+                            {meal.name}
+                          </TableCell>
+                          <TableCell>{meal.type}</TableCell>
+                          <TableCell>{meal.calories}</TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
           </Paper>
+          <br></br>
+          <br></br>
+
           <Paper
             elevation={3}
             sx={{ marginTop: "10px" }}
@@ -309,179 +463,240 @@ export const DailyPlanner = () => {
               marginTop: "10px",
             }}
           >
-            <Typography variant="h5" component="h2">
-              I AM GRATEFUL FOR:
-            </Typography>
-            <TextField
-              label="Grateful Things"
-              value={gratefulThings}
-              onChange={(e) => setGratefulThings(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <Button variant="contained" color="primary">
-              ADD
-            </Button>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={3}
-            style={{
-              width: "80%",
-              margin: "0 auto",
-              border: "3px solid #ffb997",
-              padding: "1rem",
-              marginTop: "10px",
-            }}
-          >
-            <Typography variant="h5" component="h2">
-              Appointments
-            </Typography>
-            <TextField
-              label="Time"
-              type="time"
-              value={newAppointment}
-              onChange={(e) =>
-                setNewAppointment({ ...newAppointment, time: e.target.value })
-              }
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="Title"
-              value={newAppointment.title}
-              onChange={(e) =>
-                setNewAppointment({ ...newAppointment, title: e.target.value })
-              }
-              fullWidth
-              margin="normal"
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddAppointment}
+            <Typography
+              variant="h5"
+              component="h2"
               sx={{
-                mt: "auto",
-                mb: 1,
-                backgroundColor: "#2c3e50",
-                color: "#fff",
-                "&:hover": {
-                  backgroundColor: "#fff",
-                  color: "#2c3e50",
-                  border: "3px solid #2c3e50",
-                },
-                border: "3px solid #ffb997",
+                fontWeight: "bold",
+                color: "#2c3e50",
+                backgroundColor: "#ffb997",
+                textAlign: "center",
+                marginBottom: "10px",
+                textShadow:
+                  "1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff",
               }}
             >
-              Add Appointment
-            </Button>
-            <Typography variant="body1" component="ul">
-              {appointments.map((appointment, index) => (
-                <li key={index}>
-                  <Checkbox
-                    checked={appointment.isDone}
-                    onChange={() => handleAppointmentStatusChange(index)}
-                  />
-                  {appointment.time} - {appointment.title}
-                </li>
-              ))}
+              What I Am Grateful For Today:
             </Typography>
-          </Paper>
-          <Paper
-            elevation={3}
-            sx={{ marginTop: "10px" }}
-            style={{
-              width: "80%",
-              margin: "0 auto",
-              border: "3px solid #ffb997",
-              padding: "1rem",
-              marginTop: "10px",
-            }}
-          >
-            <Typography variant="h5" component="h2">
-              Notes
-            </Typography>
-            <TextField
-              label="Add Note"
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddNote}
-              sx={{
-                mt: "auto",
-                mb: 1,
-                backgroundColor: "#2c3e50",
-                color: "#fff",
-                "&:hover": {
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <TextField
+                label="I Am Grateful For:"
+                value={gratefulThings}
+                onChange={(e) => setGratefulThings(e.target.value)}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ style: { color: "#2c3e50" } }}
+                sx={{
+                  marginBottom: "10px",
+                  bgcolor: "#fff",
                   backgroundColor: "#fff",
-                  color: "#2c3e50",
-                  border: "3px solid #2c3e50",
-                },
-                border: "3px solid #ffb997",
-              }}
-            >
-              Add Note
-            </Button>
-            <Typography variant="body1" component="ul">
-              {notes.map((note, index) => (
-                <li key={index}>{note}</li>
-              ))}
-            </Typography>
-          </Paper>
-          <Paper
-            elevation={3}
-            sx={{ marginTop: "10px" }}
-            style={{
-              width: "80%",
-              margin: "0 auto",
-              border: "3px solid #ffb997",
-              padding: "1rem",
-              marginTop: "10px",
-            }}
-          >
-            <Typography variant="h5" component="h2">
-              Water Tracker
-            </Typography>
-            <Typography variant="h6" component="h3" sx={{ marginTop: "10px" }}>
-              Today's Goal: 8 cups (64 oz)
-            </Typography>
-            <Typography variant="h6" component="h3" sx={{ marginTop: "10px" }}>
-              Today's Progress: {waterTracker} cups ({waterTracker * 8} oz)
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddWater}
-              sx={{
-                mt: "auto",
-                mb: 1,
-                backgroundColor: "#2c3e50",
-                color: "#fff",
-                "&:hover": {
-                  backgroundColor: "#fff",
-                  color: "#2c3e50",
-                  border: "3px solid #2c3e50",
-                },
-                border: "3px solid #ffb997",
-              }}
-            >
-              Add Water
-            </Button>
+                  "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#2c3e50",
+                  },
+                  "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                    {
+                      borderColor: "#2c3e50",
+                    },
+                  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                    {
+                      borderColor: "#2c3e50",
+                    },
+                  "& .MuiOutlinedInput-input": { color: "#2c3e50" },
+                  "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
+                }}
+              />
+              <AddIcon
+                sx={{ ml: 1, cursor: "pointer", color: "#2c3e5" }}
+                onClick={handleAddGrateful}
+              />
+            </Box>
             <Typography
               variant="body1"
-              component="ul"
-              sx={{ marginTop: "10px" }}
+              component="div"
+              style={{ marginBottom: "1rem", textAlign: "center" }}
             >
-              {waterLogs.map((waterLog, index) => (
-                <li key={index}>{waterLog} cups</li>
-              ))}
+              <Carousel indicators={false} style={{ height: "600px" }}>
+                {gratefulList.map((grateful, index) => (
+                  <div key={index}>
+                    <Typography
+                      variant="h4"
+                      style={{
+                        fontFamily: "Droid Sans",
+                        fontSize: "1.5rem",
+                        fontWeight: "bold",
+                        color: "#2c3e50",
+                      }}
+                    >
+                      {grateful}
+                    </Typography>
+                  </div>
+                ))}
+              </Carousel>
             </Typography>
+          </Paper>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          md={6}
+          style={{ display: "flex", flexDirection: "column" }}
+        >
+          <Paper
+            elevation={3}
+            style={{
+              width: "92%",
+              margin: "0 auto",
+              border: "3px solid #ffb997",
+              padding: "1rem",
+              marginTop: "10px",
+              height: "100%",
+            }}
+          >
+            <Typography
+              variant="h5"
+              component="h2"
+              sx={{
+                fontWeight: "bold",
+                color: "#2c3e50",
+                backgroundColor: "#ffb997",
+                textAlign: "center",
+                marginBottom: "10px",
+                textShadow:
+                  "1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff",
+              }}
+            >
+              Today's Plan
+            </Typography>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ width: "25%", fontFamily: "Droid Sans" }}>
+                    Time
+                  </TableCell>
+                  <TableCell style={{ width: "20%", fontFamily: "Droid Sans" }}>
+                    Title
+                  </TableCell>
+                  <TableCell style={{ width: "55%", fontFamily: "Droid Sans" }}>
+                    Details
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {timeSlots.map((timeSlot) => (
+                  <TableRow
+                    key={timeSlot}
+                    onClick={() => handleClickCell(timeSlot)}
+                  >
+                    <TableCell>{timeSlot}</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      {newAppointments
+                        .filter((appointment) => appointment.time === timeSlot)
+                        .map((appointment) => appointment.title)
+                        .join("\n")}
+                    </TableCell>
+                    <TableCell>
+                      {newAppointments
+                        .filter((appointment) => appointment.time === timeSlot)
+                        .map((appointment) => appointment.details)
+                        .join("\n")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <Dialog open={openEvent} onClose={handlePlannerClose}>
+              <DialogTitle>Add Event</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Enter the details for your event below.
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  label="Event"
+                  fullWidth
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  InputLabelProps={{ style: { color: "#2c3e50" } }}
+                  sx={{
+                    marginBottom: "10px",
+                    bgcolor: "#fff",
+                    backgroundColor: "#fff",
+                    "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-input": { color: "#2c3e50" },
+                    "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Details"
+                  fullWidth
+                  value={details}
+                  onChange={(e) => setDetails(e.target.value)}
+                  InputLabelProps={{ style: { color: "#2c3e50" } }}
+                  sx={{
+                    marginBottom: "10px",
+                    bgcolor: "#fff",
+                    backgroundColor: "#fff",
+                    "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                      {
+                        borderColor: "#2c3e50",
+                      },
+                    "& .MuiOutlinedInput-input": { color: "#2c3e50" },
+                    "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={handlePlannerClose}
+                  sx={{
+                    backgroundColor: "#2c3e50",
+                    color: "#fff",
+                    "&:hover": {
+                      backgroundColor: "#fff",
+                      color: "#2c3e50",
+                      border: "3px solid #2c3e50",
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  sx={{
+                    backgroundColor: "#2c3e50",
+                    color: "#fff",
+                    "&:hover": {
+                      backgroundColor: "#fff",
+                      color: "#2c3e50",
+                      border: "3px solid #2c3e50",
+                    },
+                  }}
+                >
+                  Add Event
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Paper>
         </Grid>
       </Grid>

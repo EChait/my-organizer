@@ -9,6 +9,8 @@ import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import { useNavigate } from "react-router-dom";
 import logo from "../../images/logo.png";
+import WebFont from "webfontloader";
+import { useEffect } from "react";
 
 const pages = [
   { name: "Monthly Calendar", path: "/" },
@@ -19,14 +21,6 @@ const pages = [
 export function Header() {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
 
   const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
@@ -35,42 +29,89 @@ export function Header() {
     }
   };
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+  useEffect(() => {
+    WebFont.load({
+      google: {
+        families: ["Pacifico", "Chilanka", "Droid Sans"],
+      },
+    });
+  }, []);
 
   return (
     <AppBar
       position="static"
       sx={{
+        height: 100,
         bgcolor: "#2c3e50",
         color: "#fff",
         borderBottom: "5px solid #ffb997",
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <img src={logo} alt="Logo" height={40} width={40} />
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
-              sx={{
-                ml: 2,
-                fontFamily: "Arial",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              My Organizer
-            </Typography>
+        <Toolbar disableGutters sx={{ flexDirection: "column", height: 20 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+            }}
+          >
+            <Box>
+              <br></br>
+              <img src={logo} alt="Logo" height={60} width={60} />
+            </Box>
+            <Box sx={{ ml: 2 }}>
+              <br></br>
+              <Typography
+                variant="h6"
+                noWrap
+                component="a"
+                href="/"
+                sx={{
+                  fontFamily: "Chilanka",
+                  fontWeight: "bold",
+                  letterSpacing: ".3rem",
+                  color: "inherit",
+                  textDecoration: "none",
+                  fontSize: "60px",
+                }}
+              >
+                My Organizer
+              </Typography>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end", // change to flex-start
+              alignItems: "center",
+              mt: 0.5,
+              flexWrap: "wrap",
+            }}
+          >
+            {pages.map((page) => (
+              <Button
+                key={page.name}
+                onClick={() => navigate(page.path)}
+                sx={{
+                  color: "inherit",
+                  fontWeight: 600,
+                  mx: 1,
+                  fontFamily: "Chilanka",
+                }}
+              >
+                {page.name}
+              </Button>
+            ))}
           </Box>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <Box
+            sx={{
+              display: { xs: "block", md: "none" },
+              mt: 2,
+            }}
+          >
             <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
@@ -84,103 +125,18 @@ export function Header() {
                 horizontal: "left",
               }}
               open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
+              onClose={() => handleCloseNavMenu()}
             >
               {pages.map((page) => (
                 <MenuItem
                   key={page.name}
                   onClick={() => handleCloseNavMenu(page)}
+                  sx={{ color: "inherit" }}
                 >
-                  <Typography
-                    textAlign="center"
-                    color="#393e46"
-                    fontFamily="Arial"
-                  >
-                    {page.name}
-                  </Typography>
+                  {page.name}
                 </MenuItem>
               ))}
             </Menu>
-          </Box>
-
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href=""
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "Arial",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "#ffb997",
-              textDecoration: "none",
-            }}
-          >
-            My Organizer
-          </Typography>
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: "none", md: "flex", color: "#fff" },
-
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {pages.map((page) => (
-              <Button
-                key={page.name}
-                onClick={() => navigate(page.path)}
-                sx={{
-                  color: "inherit",
-                  fontWeight: 600,
-                  mx: 1,
-                  fontFamily: "Arial",
-                }}
-              >
-                {page.name}
-              </Button>
-            ))}
-          </Box>
-          <Box>
-            <Button
-              onClick={handleOpenUserMenu}
-              sx={{ color: "inherit", fontWeight: 600, fontFamily: "Arial" }}
-            >
-              User
-            </Button>
-            <Menu
-              id="menu-user"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              <MenuItem onClick={handleCloseUserMenu}>Profile</MenuItem>
-              <MenuItem onClick={handleCloseUserMenu}>My account</MenuItem>
-            </Menu>
-          </Box>
-          <Box sx={{ display: { xs: "block", md: "none" } }}>
-            <Button
-              onClick={handleOpenNavMenu}
-              sx={{ color: "inherit", fontWeight: 600 }}
-            >
-              Menu
-            </Button>
           </Box>
         </Toolbar>
       </Container>
