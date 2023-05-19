@@ -23,6 +23,7 @@ import Carousel from "react-material-ui-carousel";
 import { GlobalStateContext } from "../../globalState/globalStateContext";
 import WebFont from "webfontloader";
 import axios from "axios";
+import IconButton from "@mui/material/IconButton";
 
 export const DailyPlanner = () => {
   const {
@@ -570,6 +571,7 @@ export const DailyPlanner = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell></TableCell>
                   <TableCell style={{ width: "25%", fontFamily: "Droid Sans" }}>
                     Time
                   </TableCell>
@@ -583,10 +585,17 @@ export const DailyPlanner = () => {
               </TableHead>
               <TableBody>
                 {timeSlots.map((timeSlot) => (
-                  <TableRow
-                    key={timeSlot}
-                    onClick={() => handleClickCell(timeSlot)}
-                  >
+                  <TableRow>
+                    <TableCell>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <IconButton aria-label="delete">
+                          <AddIcon
+                            key={timeSlot}
+                            onClick={() => handleClickCell(timeSlot)}
+                          />
+                        </IconButton>
+                      </div>
+                    </TableCell>
                     <TableCell>{timeSlot}</TableCell>
                     <TableCell style={{ fontWeight: "bold" }}>
                       {newAppointments

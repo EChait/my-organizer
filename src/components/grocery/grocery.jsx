@@ -81,6 +81,11 @@ export const Grocery = () => {
     setCVV("");
   };
 
+  const handleSearch = () => {
+    // Perform the search operation with the query
+    console.log("Perform search with query:", query);
+  };
+
   const handleShoppingCartClick = (event) => {
     setAnchorEl(event.currentTarget);
     setShowShoppingList(true);
@@ -195,7 +200,7 @@ export const Grocery = () => {
               "& .MuiOutlinedInput-input:focus": { color: "#2c3e50" },
             }}
           />
-          <IconButton>
+          <IconButton onClick={handleSearch}>
             <Search style={{ color: "#2c3e50" }} />
           </IconButton>
         </Box>
@@ -236,7 +241,7 @@ export const Grocery = () => {
                     width: "100%",
                   }}
                 >
-                  Shopping List
+                  Your Cart
                   <Divider></Divider>
                 </Typography>
               </MenuItem>
