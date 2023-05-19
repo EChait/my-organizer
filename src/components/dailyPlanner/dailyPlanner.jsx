@@ -66,19 +66,6 @@ export const DailyPlanner = () => {
   };
 
   useEffect(() => {
-    const filterAppointments = () => {
-      const today = new Date().toLocaleDateString();
-      const filteredAppointments = myEvents.filter(
-        (event) => event.date === today
-      );
-      setNewAppointments(filteredAppointments);
-    };
-
-    filterAppointments();
-    console.log(filterAppointments);
-  }, []);
-
-  useEffect(() => {
     WebFont.load({
       google: {
         families: ["Pacifico", "Chilanka", "Droid Sans"],
