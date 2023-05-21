@@ -24,6 +24,7 @@ import { GlobalStateContext } from "../../globalState/globalStateContext";
 import WebFont from "webfontloader";
 import axios from "axios";
 import IconButton from "@mui/material/IconButton";
+import { Delete } from "@mui/icons-material";
 
 export const DailyPlanner = () => {
   const {
@@ -63,6 +64,18 @@ export const DailyPlanner = () => {
       setGratefulList((prevList) => [...prevList, gratefulThings]);
       setGratefulThings("");
     }
+  };
+  const handleDelete = (index) => {
+    // Remove the time slot at the specified index from the timeSlots array
+    const updatedTimeSlots = [...timeSlots];
+    updatedTimeSlots.splice(index, 1);
+
+    // Remove any appointments that match the deleted time slot from the newAppointments array
+    const updatedAppointments = newAppointments.filter(
+      (appointment) => appointment.time !== timeSlots[index]
+    );
+
+    setNewAppointments(updatedAppointments);
   };
 
   useEffect(() => {
@@ -571,8 +584,8 @@ export const DailyPlanner = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {timeSlots.map((timeSlot) => (
-                  <TableRow>
+                {timeSlots.map((timeSlot, index) => (
+                  <TableRow key={timeSlot}>
                     <TableCell>
                       <div style={{ display: "flex", alignItems: "center" }}>
                         <IconButton aria-label="delete">
@@ -580,6 +593,12 @@ export const DailyPlanner = () => {
                             key={timeSlot}
                             onClick={() => handleClickCell(timeSlot)}
                           />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <Delete />
                         </IconButton>
                       </div>
                     </TableCell>
@@ -600,6 +619,7 @@ export const DailyPlanner = () => {
                 ))}
               </TableBody>
             </Table>
+
             <Dialog open={openEvent} onClose={handlePlannerClose}>
               <DialogTitle>Add Event</DialogTitle>
               <DialogContent>
